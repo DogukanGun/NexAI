@@ -126,7 +126,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-purple-400 mb-2">Smart Automation</h3>
-                <p className="text-gray-400">Automated workflows that adapt to your organization's needs, streamlining HR processes efficiently.</p>
+                <p className="text-gray-400">Automated workflows that adapt to your organization&apos;s needs, streamlining HR processes efficiently.</p>
               </div>
               <div className="p-6 bg-white/5 rounded-xl border border-white/10 transform hover:-translate-y-1 transition-all duration-300">
                 <div className="w-12 h-12 mb-4 rounded-full bg-gradient-to-br from-indigo-500/20 to-blue-500/20 flex items-center justify-center">

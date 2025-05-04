@@ -1,5 +1,4 @@
 "use client"
-import { useState, useEffect } from 'react';
 
 interface ComingSoonModalProps {
   isOpen: boolean;
@@ -7,13 +6,6 @@ interface ComingSoonModalProps {
 }
 
 export const ComingSoonModal = ({ isOpen, onClose }: ComingSoonModalProps) => {
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsAnimating(true);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -52,7 +44,7 @@ export const ComingSoonModal = ({ isOpen, onClose }: ComingSoonModalProps) => {
           </div>
 
           <p className="text-lg text-center text-gray-300 mb-4">
-            We're building something extraordinary
+            We&apos;re building something extraordinary
           </p>
           <p className="text-center text-gray-400 mb-6">
             Our team is working hard to bring you the next generation of AI-powered HR solutions. Stay tuned for updates!

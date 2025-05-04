@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../hooks/api.hook';
-import { LoginResponse, RegisterDto } from '../../services/ApiService';
+import { LoginResponse } from '../../services/ApiService';
 import { useRouter } from 'next/navigation';
 
 interface AuthModalProps {
@@ -94,7 +94,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         });
       }
     } catch (error) {
-      // Error is handled by the hook
+      console.error(error);
     }
   };
 

@@ -1,85 +1,127 @@
 # embedder.py
 
 import os
+import uuid
 from dotenv import load_dotenv
+from typing import List, Optional
+
 import weaviate
 from weaviate.classes.init import Auth
-from sentence_transformers import SentenceTransformer
-from pypdf import PdfReader  # Use pypdf instead of PyPDF2
-import uuid
+from pypdf import PdfReader
+import re
 
 # ==== 1. Load environment variables ====
 load_dotenv()
 
 WEAVIATE_URL = os.getenv("WEAVIATE_URL")
-WEAVIATE_API_KEY = os.getenv("WEAVIATE_API_KEY")  # Optional
+WEAVIATE_API_KEY = os.getenv("WEAVIATE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not WEAVIATE_URL:
     raise ValueError("Missing WEAVIATE_URL in environment variables!")
+if not WEAVIATE_API_KEY:
+    raise ValueError("Missing WEAVIATE_API_KEY in environment variables!")
+if not OPENAI_API_KEY:
+    raise ValueError("Missing OPENAI_API_KEY in environment variables!")
 
-# ==== 2. Initialize Weaviate Client with API Key ====
-# Now using Weaviate Client v4
+# ==== 2. Initialize Weaviate Client ====
 client = weaviate.connect_to_weaviate_cloud(
-    cluster_url=WEAVIATE_URL,  # Weaviate URL (change to your URL if different)
-    auth_credentials=Auth.api_key(
-        WEAVIATE_API_KEY  # Replace with your actual API key
-    ),
-    headers={'X-OpenAI-Api-key': os.getenv("OPENAI_API_KEY")}
+    cluster_url=WEAVIATE_URL,
+    auth_credentials=Auth.api_key(WEAVIATE_API_KEY),
+    headers={'X-OpenAI-Api-Key': OPENAI_API_KEY}
 )
 
-# ==== 3. Load Sentence Transformer Model ====
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-
-# ==== 4. Helper: Read and Split PDF into Chunks ====
-def read_pdf_chunks(file_path, chunk_size=500):
+# ==== 3. Helper: Extract and split PDF text ====
+def extract_clean_text_from_pdf(file_path: str) -> str:
     reader = PdfReader(file_path)
-    full_text = ''
+    all_text = []
     for page in reader.pages:
-        page_text = page.extract_text()
-        if page_text:
-            full_text += page_text + '\n'
-    chunks = [full_text[i:i+chunk_size] for i in range(0, len(full_text), chunk_size)]
+        text = page.extract_text()
+        if text:
+            clean = re.sub(r'\s+', ' ', text)  # Normalize whitespace
+            all_text.append(clean.strip())
+    return "\n".join(all_text)
+
+def split_into_chunks(text: str, chunk_size: int = 1500, overlap: int = 150) -> List[str]:
+    """Split text into chunks with increased chunk size for OpenAI embeddings"""
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    chunks, chunk = [], ""
+    for sentence in sentences:
+        if len(chunk) + len(sentence) <= chunk_size:
+            chunk += sentence + " "
+        else:
+            chunks.append(chunk.strip())
+            chunk = sentence + " "
+    if chunk:
+        chunks.append(chunk.strip())
     return chunks
 
-# ==== 5. Helper: Embed and Push to Weaviate ====
-def embed_and_store(chunks, class_name, extra_metadata=None):
-    for text in chunks:
-        embedding = model.encode(text)
-        data_object = {"text": text}
-        if extra_metadata:
-            data_object.update(extra_metadata)
-
-        # Create the object in Weaviate using v4 API
+# ==== 5. Storing (no need to manually embed) ====
+def store_chunks(chunks: List[str], class_name: str, metadata: Optional[dict] = None):
+    """Store text chunks in Weaviate - vectorization is handled by the text2vec-openai module"""
+    for chunk in chunks:
+        data_object = {"text": chunk}
+        if metadata:
+            data_object.update(metadata)
         client.collections.get(class_name).data.insert(
             properties=data_object,
-            uuid=str(uuid.uuid4()),  # Generate a unique UUID
-            vector=embedding  # Store the vector (embedding) for search functionality
+            uuid=str(uuid.uuid4())
         )
 
-# ==== 6. Main Functions ====
+# ==== 6. Process PDF wrapper ====
+def process_pdf(pdf_path: str, class_name: str, metadata: Optional[dict] = None):
+    print(f"Processing PDF: {pdf_path}")
+    text = extract_clean_text_from_pdf(pdf_path)
+    chunks = split_into_chunks(text)
+    store_chunks(chunks, class_name=class_name, metadata=metadata)
+    print(f"Finished processing {pdf_path} - {len(chunks)} chunks created")
 
-# Embed official German Law (free access)
-def upload_official_document(pdf_path):
-    print(f"Uploading official document: {pdf_path}")
-    chunks = read_pdf_chunks(pdf_path)
-    embed_and_store(chunks, class_name="GermanLaw")
-    print("Upload complete for official document.")
+# ==== 7. Upload handlers ====
+def upload_official_document(pdf_path: str):
+    """Upload an official labor law document to the GermanLaborLaw collection"""
+    filename = os.path.basename(pdf_path)
+    name, _ = os.path.splitext(filename)
+    
+    process_pdf(
+        pdf_path, 
+        class_name="GermanLaborLaw",
+        metadata={"source": name, "document_type": "official"}
+    )
 
-# Embed a Paid User's Personal Document
-def upload_user_document(pdf_path, user_id):
-    print(f"Uploading document for user: {user_id}")
-    chunks = read_pdf_chunks(pdf_path)
-    embed_and_store(chunks, class_name="UserFiles", extra_metadata={"user_id": user_id})
-    print("Upload complete for user.")
+def upload_user_document(pdf_path: str, user_id: str):
+    process_pdf(
+        pdf_path, 
+        class_name="GermanLaborLaw", 
+        metadata={"user_id": user_id, "document_type": "user"}
+    )
 
-# ==== 7. Example usage (Uncomment to run directly) ====
+# ==== 8. Main usage ====
 if __name__ == "__main__":
     try:
-        # Upload official document
-        upload_official_document("/Users/dogukangundogan/Desktop/Dev/nex_ai_v2/pipeline/a711-arbeitsrecht.pdf")
+        try:
+            collection = client.collections.get("GermanLaborLaw")
+            print(f"Found collection: GermanLaborLaw")
+        except Exception as e:
+            print(f"Error: The GermanLaborLaw collection does not exist. Please create it first: {e}")
+            exit(1)
+            
+        pdf_files = [
+            "/Users/dogukangundogan/Desktop/Dev/nex_ai_v2/pipeline/ArbZG.pdf",
+            "/Users/dogukangundogan/Desktop/Dev/nex_ai_v2/pipeline/AÜG.pdf",
+            "/Users/dogukangundogan/Desktop/Dev/nex_ai_v2/pipeline/BetrVG.pdf",
+            "/Users/dogukangundogan/Desktop/Dev/nex_ai_v2/pipeline/NachwG.pdf"
+        ]
+        
+        comprehensive_law = "/Users/dogukangundogan/Desktop/Dev/nex_ai_v2/pipeline/a711-arbeitsrecht.pdf"
+        if os.path.exists(comprehensive_law):
+            pdf_files.append(comprehensive_law)
+        
+        for pdf_file in pdf_files:
+            if os.path.exists(pdf_file):
+                upload_official_document(pdf_file)
+            else:
+                print(f"Warning: File not found: {pdf_file}")
 
-        # Upload user document
-        # upload_user_document("path_to_user_upload.pdf", user_id="user-12345")
     finally:
-        # Ensure the connection is properly closed
         client.close()
+        print("Pipeline completed")

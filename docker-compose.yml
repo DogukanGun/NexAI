@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+
+  frontend:
+    build:
+      context: ./platform
+      dockerfile: Dockerfile
+    ports:
+      - "9123:9123"
+    restart: always
