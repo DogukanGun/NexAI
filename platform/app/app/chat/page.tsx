@@ -47,12 +47,46 @@ export default function ChatPage() {
   // Use the first URL by default
   const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
   const BACKEND_URL = backendUrls[currentUrlIndex] || "http://backend:3000";
+  const [token, setToken] = useState<string | null>(null);
+
+  // Get token from sessionStorage on component mount
+  useEffect(() => {
+    const storedToken = sessionStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const handleSend = async (e: React.FormEvent<HTMLFormElement> | null, suggestedQuery?: string) => {
     e?.preventDefault();
     
     const userMessage = suggestedQuery || input;
     if (!userMessage.trim() || isLoading) return;
+    
+    // Check if user is authenticated
+    if (!token) {
+      // Add user message
+      const newUserMessage: Message = {
+        id: Date.now().toString(),
+        content: userMessage,
+        sender: "user",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, newUserMessage]);
+      setInput("");
+      
+      // Add authentication error message
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "Please login to use the HR agent. Your access token is missing.",
+        sender: "assistant",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+      return;
+    }
     
     // Add user message
     const newUserMessage: Message = {
@@ -79,6 +113,8 @@ export default function ChatPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`, // Add token to request
         },
         body: JSON.stringify({ query: userMessage }),
         signal: controller.signal

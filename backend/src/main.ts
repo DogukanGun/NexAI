@@ -108,6 +108,17 @@ async function bootstrap() {
       .setTitle('NexHR API')
       .setDescription('NexHR API description')
       .setVersion('1.0')
+      .addBearerAuth(
+        { 
+          type: 'http', 
+          scheme: 'bearer', 
+          bearerFormat: 'JWT',
+          name: 'Authorization',
+          description: 'Enter JWT token',
+          in: 'header'
+        },
+        'JWT-auth',
+      )
       .build();
 
     const document = SwaggerModule.createDocument(app, config);

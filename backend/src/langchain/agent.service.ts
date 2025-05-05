@@ -29,12 +29,19 @@ export class AgentService implements OnModuleInit {
         return;
       }
 
-      const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
+      let openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
       
       if (!openaiApiKey) {
         this.logger.warn('OpenAI API key not found. Agent will not be initialized.');
         return;
       }
+
+      // Fix the API key by removing any newlines or whitespace
+      openaiApiKey = openaiApiKey.replace(/\s+/g, '');
+      
+      // Log key length and part of the key for debugging (don't log the full key)
+      this.logger.log(`OpenAI API key length: ${openaiApiKey.length}`);
+      this.logger.log(`OpenAI API key starts with: ${openaiApiKey.substring(0, 10)}...`);
 
       // Create the language model
       const model = new ChatOpenAI({

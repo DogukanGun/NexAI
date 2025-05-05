@@ -1,13 +1,33 @@
 "use client"
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { AuthModal } from "./components/AuthModal";
 import { LawAI } from "./components/svgs/LawAI";
 import { DocumentAI } from "./components/svgs/DocumentAI";
 import { InterviewAI } from "./components/svgs/InterviewAI";
 import { FutureVisualization } from "./components/svgs/FutureVisualization";
 
 export default function Home() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Check if user was redirected because they need to log in
+  useEffect(() => {
+    const needLogin = searchParams.get('needLogin');
+    if (needLogin === 'true') {
+      setIsAuthModalOpen(true);
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+      
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* Animated background gradient */}
@@ -28,6 +48,12 @@ export default function Home() {
                 Experience the power of advanced AI in HR management. Transform your workplace with intelligent automation and deep insights.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 text-lg font-semibold"
+                >
+                  Get Started
+                </button>
                 <Link
                   href="/#features"
                   className="px-8 py-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 text-lg font-semibold"
