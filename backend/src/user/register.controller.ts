@@ -4,11 +4,16 @@ import { mergeMap, map } from 'rxjs/operators';
 import { RegisterDto } from './register.dto';
 import { CompanyUserRegisterDto } from './dto/company-user-register.dto';
 import { UserService } from './user.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interface/authenticated-request.interface';
 import { Role } from 'generated/prisma/client';
 import { AuthService } from '../auth/auth.service';
+
+// Define response DTO for Swagger
+class TokenResponseDto {
+  access_token: string;
+}
 
 @Controller({ path: '/register' })
 @ApiTags('register')
@@ -20,6 +25,21 @@ export class RegisterController {
 
     @Post()
     @ApiOperation({ summary: 'Register a new individual user' })
+    @ApiBody({
+      type: RegisterDto,
+      description: 'User registration data',
+      examples: {
+        example: {
+          value: {
+            username: 'newuser',
+            email: 'user@example.com',
+            password: 'password123'
+          },
+        },
+      },
+    })
+    @ApiResponse({ status: 201, description: 'User registered successfully', type: TokenResponseDto })
+    @ApiResponse({ status: 409, description: 'Username or email already exists' })
     register(@Body() registerDto: RegisterDto): Observable<{ access_token: string }> {
         const username = registerDto.username;
 
@@ -49,7 +69,26 @@ export class RegisterController {
 
     @Post('company')
     @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Register a new company user (requires company admin)' })
+    @ApiBody({
+      type: CompanyUserRegisterDto,
+      description: 'Company user registration data',
+      examples: {
+        example: {
+          value: {
+            username: 'companyuser',
+            email: 'company@example.com',
+            password: 'password123',
+            roles: ['USER']
+          },
+        },
+      },
+    })
+    @ApiResponse({ status: 201, description: 'Company user registered successfully', type: TokenResponseDto })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    @ApiResponse({ status: 403, description: 'Forbidden - Not a company admin or user limit reached' })
+    @ApiResponse({ status: 409, description: 'Username or email already exists' })
     registerCompanyUser(
         @Body() registerDto: CompanyUserRegisterDto,
         @Req() req: AuthenticatedRequest): Observable<{ access_token: string }> {
