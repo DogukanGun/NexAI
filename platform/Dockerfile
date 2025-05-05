@@ -17,7 +17,7 @@ COPY . .
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Expose the port the app runs on.
-EXPOSE 9123
+EXPOSE 3001
 
 # Start the application.
 CMD ["npm", "start"] 

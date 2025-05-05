@@ -35,8 +35,11 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Define backend URL - consider adding to .env in production
-  const BACKEND_URL = "http://localhost:3000"; // Backend is running on port 3000
+  // Define backend URL with Docker container networking support
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 
+                      (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+                        ? "http://localhost:3000"
+                        : "http://backend:3000"); // Use service name in Docker
 
   const handleSend = async (e: React.FormEvent<HTMLFormElement> | null, suggestedQuery?: string) => {
     e?.preventDefault();
