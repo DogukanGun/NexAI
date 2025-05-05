@@ -58,13 +58,6 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
-    // Create a simple test endpoint to verify the server is running
-    logger.log('Adding test endpoint');
-    app.getHttpAdapter().getInstance().get('/test', (req, reply) => {
-      logger.log('Test endpoint called');
-      return reply.send({ message: 'Backend is working!' });
-    });
-
     // Start the server
     const host = '0.0.0.0';
     const port = 3000;

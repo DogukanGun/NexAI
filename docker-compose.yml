@@ -18,13 +18,13 @@ services:
       - DEBUG=express:*,prisma:*,nestjs:*
     networks:
       - hr-network
-    # Temporarily disable healthcheck to see startup errors
-    # healthcheck:
-    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/test" ]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
-    #   start_period: 30s
+    # Re-enable healthcheck now that we've fixed the route conflict
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/test" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     logging:
       driver: "json-file"
       options:
@@ -43,10 +43,10 @@ services:
     ports:
       - "3001:3001"
     restart: always
-    # Temporarily remove dependency on backend to allow frontend to start
-    # depends_on:
-    #   backend:
-    #     condition: service_healthy
+    # Re-enable dependency on backend
+    depends_on:
+      backend:
+        condition: service_healthy
     networks:
       - hr-network
     environment:
