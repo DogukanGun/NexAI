@@ -3,15 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { WeaviateSearchTool } from './weaviate.tool';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
 import { ChatOpenAI } from '@langchain/openai';
+import { WeaviateService } from '../weaviate/weaviate.service';
 
 @Injectable()
 export class AgentService implements OnModuleInit {
   private readonly logger = new Logger(AgentService.name);
   private executor: any; // Executor type is complex in Langchain, using 'any' for simplicity
+  private isAgentAvailable = false;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly weaviateSearchTool: WeaviateSearchTool,
+    private readonly weaviateService: WeaviateService,
   ) {}
 
   async onModuleInit() {
@@ -20,11 +23,17 @@ export class AgentService implements OnModuleInit {
 
   private async initializeAgent() {
     try {
+      // Check if Weaviate is available
+      if (!this.weaviateService.isAvailable) {
+        this.logger.warn('Weaviate service is not available. Agent will not be initialized.');
+        return;
+      }
+
       const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY');
       
       if (!openaiApiKey) {
-        this.logger.error('OpenAI API key not found. Cannot initialize agent.');
-        throw new Error('OpenAI API key missing');
+        this.logger.warn('OpenAI API key not found. Agent will not be initialized.');
+        return;
       }
 
       // Create the language model
@@ -47,10 +56,12 @@ export class AgentService implements OnModuleInit {
         }
       );
 
+      this.isAgentAvailable = true;
       this.logger.log('Agent initialized successfully');
     } catch (error) {
       this.logger.error('Failed to initialize agent', error);
-      throw error;
+      this.logger.warn('The application will continue to run, but agent functionality will be unavailable.');
+      // Don't throw error, application can run without the agent
     }
   }
 
@@ -60,8 +71,8 @@ export class AgentService implements OnModuleInit {
    * @returns The agent's response
    */
   async executeAgent(query: string): Promise<string> {
-    if (!this.executor) {
-      throw new Error('Agent not initialized');
+    if (!this.isAgentAvailable || !this.executor) {
+      return 'Sorry, the AI agent is not available at the moment. Please check if the required services (Weaviate, OpenAI) are properly configured.';
     }
 
     try {
@@ -71,8 +82,8 @@ export class AgentService implements OnModuleInit {
 
       return result.output || 'No answer found.';
     } catch (error) {
-      this.logger.error(`Error executing agent: ${error.message}`);
-      return `Sorry, I encountered an error while processing your question: ${error.message}`;
+      this.logger.error(`Error executing agent: ${error instanceof Error ? error.message : String(error)}`);
+      return `Sorry, I encountered an error while processing your question. Please try again with a different question.`;
     }
   }
 } 

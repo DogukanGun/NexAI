@@ -9,43 +9,43 @@ import type { WeaviateClient } from 'weaviate-client';
 export class WeaviateService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(WeaviateService.name);
   private _client: WeaviateClient | null = null;
+  private _isAvailable = false;
 
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
     const url = this.configService.get<string>('WEAVIATE_URL');
     const apiKey = this.configService.get<string>('WEAVIATE_API_KEY');
-    const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY'); // Needed if using OpenAI module
+    const openaiApiKey = this.configService.get<string>('OPENAI_API_KEY'); 
 
     if (!url || !apiKey) {
-      this.logger.error(
-        'Weaviate URL or API Key not configured. Please set WEAVIATE_URL and WEAVIATE_API_KEY environment variables.',
+      this.logger.warn(
+        'Weaviate URL or API Key not configured. The application will run, but Weaviate functionality will be unavailable.'
       );
-      throw new Error('Weaviate configuration missing');
+      // Don't throw error, just log warning and continue
+      return;
     }
 
     try {
-      // Assuming connection to Weaviate Cloud (WCD) based on common usage
-      // Adjust connectToLocal or connectToCustom if needed
       this._client = await weaviate.connectToWeaviateCloud(url, {
         authCredentials: new weaviate.ApiKey(apiKey),
         headers: {
-          // Include OpenAI API key header if using Weaviate's OpenAI module
-          // Adjust header name if using a different inference API
           'X-OpenAI-Api-Key': openaiApiKey || '', 
         },
       });
+      this._isAvailable = true;
       this.logger.log('Successfully connected to Weaviate');
     } catch (err) {
       this.logger.error('Failed to connect to Weaviate', err);
-      throw err; // Re-throw error to prevent application startup if connection fails
+      this.logger.warn('The application will continue to run, but Weaviate functionality will be unavailable.');
+      // Don't throw error, application can run without Weaviate
     }
   }
 
   async onModuleDestroy() {
     if (this._client) {
       try {
-        await this._client.close(); // Use client.close() as per v3 docs
+        await this._client.close();
         this.logger.log('Weaviate connection closed');
       } catch (err) {
         this.logger.error('Failed to close Weaviate connection gracefully', err);
@@ -53,26 +53,27 @@ export class WeaviateService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  get client(): WeaviateClient {
-    if (!this._client) {
-      throw new Error(
-        'Weaviate client not initialized. Ensure the module is properly loaded.',
-      );
-    }
+  get client(): WeaviateClient | null {
     return this._client;
   }
 
-  // --- Search Method Placeholder ---
+  get isAvailable(): boolean {
+    return this._isAvailable;
+  }
+
   async searchLaborLaw(query: string): Promise<any> {
-    if (!this.client) {
-      throw new Error('Weaviate client not ready.');
+    if (!this.isAvailable || !this.client) {
+      this.logger.warn('Weaviate is not available, returning empty search results');
+      return [];
     }
+    
     this.logger.log(`Searching labor law with query: ${query}`);
 
-    const collectionName = 'GermanLaborLaw'; // Updated to match our new collection
-    const lawCollection = this.client.collections.get(collectionName);
-
+    const collectionName = 'GermanLaborLaw'; 
+    
     try {
+      const lawCollection = this.client.collections.get(collectionName);
+
       // Use nearText search with the correct API syntax for Weaviate v3
       const result = await lawCollection.query.nearText([query], {
         limit: 5,
@@ -88,7 +89,7 @@ export class WeaviateService implements OnModuleInit, OnModuleDestroy {
       return result.objects;
     } catch (error) {
       this.logger.error(`Error searching Weaviate collection '${collectionName}'`, error);
-      throw error;
+      return []; // Return empty array instead of throwing
     }
   }
 } 

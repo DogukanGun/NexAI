@@ -1,9 +1,11 @@
 import { DynamicTool } from "langchain/tools";
 import { WeaviateService } from "../weaviate/weaviate.service";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class WeaviateSearchTool {
+  private readonly logger = new Logger(WeaviateSearchTool.name);
+
   constructor(private readonly weaviateService: WeaviateService) {}
 
   /**
@@ -16,6 +18,12 @@ export class WeaviateSearchTool {
         "Search for information about German labor law. Input should be a specific question or topic related to labor law in Germany.",
       func: async (query: string) => {
         try {
+          // Check if Weaviate is available
+          if (!this.weaviateService.isAvailable) {
+            this.logger.warn('Weaviate service is not available for search');
+            return "Sorry, the German labor law database is not available at the moment.";
+          }
+
           const results = await this.weaviateService.searchLaborLaw(query);
           
           if (!results || results.length === 0) {
@@ -44,7 +52,7 @@ export class WeaviateSearchTool {
 
           return formattedResults;
         } catch (error) {
-          console.error("Error using Weaviate search tool:", error);
+          this.logger.error("Error using Weaviate search tool:", error);
           return "Sorry, there was an error searching the German labor law database.";
         }
       },
