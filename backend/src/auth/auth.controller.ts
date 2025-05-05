@@ -5,7 +5,13 @@ import { map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthenticatedRequest } from './interface/authenticated-request.interface';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
+
+// Define login DTO for Swagger documentation
+class LoginDto {
+  username: string;
+  password: string;
+}
 
 @Controller({ path: '/auth' })
 @ApiTags('auth')
@@ -15,6 +21,18 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiOperation({ summary: 'Login a user' })
+  @ApiBody({
+    type: LoginDto,
+    description: 'User credentials',
+    examples: {
+      example: {
+        value: {
+          username: 'user',
+          password: 'password',
+        },
+      },
+    },
+  })
   login(@Req() req: AuthenticatedRequest, @Res() res: FastifyReply): Observable<FastifyReply> {
     return this.authService.login(req.user)
       .pipe(
