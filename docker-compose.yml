@@ -15,5 +15,5 @@ services:
       context: ./platform
       dockerfile: Dockerfile
     ports:
-      - "9123:9123"
+      - "3001:3001"
     restart: always
