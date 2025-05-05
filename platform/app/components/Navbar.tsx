@@ -30,9 +30,19 @@ export default function Navbar({ onLaunchClick }: NavbarProps) {
   }, []);
 
   const handleLogout = () => {
+    // Clear sessionStorage
     sessionStorage.removeItem('token');
+    
+    // Clear the cookie more thoroughly - set multiple deletion patterns to ensure it's removed
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+    document.cookie = 'token=; path=/app; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+    document.cookie = 'token=; max-age=0; path=/;';
+    
     setIsAuthenticated(false);
-    router.push('/');
+    
+    // Force a complete page reload to ensure middleware runs again
+    window.location.href = '/';
   };
 
   return (

@@ -45,6 +45,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     if (data?.access_token) {
       // Save token to session storage
       sessionStorage.setItem('token', data.access_token);
+      
+      // Also save token to cookies for middleware authentication
+      document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Strict`;
+      
       // Close modal and redirect to app page
       onClose();
       router.push('/app');
