@@ -28,8 +28,15 @@ async function bootstrap() {
             'http://localhost:3001',
             'http://frontend:3001',
             'http://127.0.0.1:3001',
+            'http://0.0.0.0:3001',
+            'http://172.18.0.3:3001',
             'https://hr.nexarb.com',
-            'http://hr.nexarb.com'
+            'http://hr.nexarb.com',
+            'http://nexai-frontend:3001',
+            'http://nexai-frontend:3000',
+            'http://frontend:3000',
+            'http://0.0.0.0:3001',
+            'http://host.docker.internal:3001'
           ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       credentials: true,
@@ -57,7 +64,12 @@ async function bootstrap() {
         'http://localhost:3001', 
         'http://frontend:3001',
         'https://hr.nexarb.com',
-        'http://hr.nexarb.com'
+        'http://hr.nexarb.com',
+        'http://nexai-frontend:3001',
+        'http://nexai-frontend:3000',
+        'http://frontend:3000',
+        'http://0.0.0.0:3001',
+        'http://host.docker.internal:3001'
       ];
       
       const origin = req.headers.origin;
