@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
+import AuthCheck from '../../components/AuthCheck';
 
 type Message = {
   id: string;
@@ -173,6 +174,11 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
+      {/* Authentication check */}
+      <Suspense fallback={null}>
+        <AuthCheck />
+      </Suspense>
+      
       {/* Top header with German flag accent */}
       <div className="bg-[#111] border-b border-gray-800 shadow-sm py-4 px-6">
         <div className="flex items-center justify-between">

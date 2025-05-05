@@ -1,11 +1,20 @@
+"use client"
+
+import { Suspense } from 'react';
 import QuickActionsCard from './components/QuickActionsCard';
 import AnalyticsCard from './components/AnalyticsCard';
 import RecentActivityCard from './components/RecentActivityCard';
 import ApplicationCard from './components/ApplicationCard';
+import AuthCheck from '../components/AuthCheck';
 
 export default function AppPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      {/* Authentication check */}
+      <Suspense fallback={null}>
+        <AuthCheck />
+      </Suspense>
+      
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">

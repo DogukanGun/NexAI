@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "./components/AuthModal";
 import { LawAI } from "./components/svgs/LawAI";
@@ -8,20 +8,30 @@ import { DocumentAI } from "./components/svgs/DocumentAI";
 import { InterviewAI } from "./components/svgs/InterviewAI";
 import { FutureVisualization } from "./components/svgs/FutureVisualization";
 
-export default function Home() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+// Component that uses useSearchParams
+function LoginCheck({ setIsAuthModalOpen }: { setIsAuthModalOpen: (isOpen: boolean) => void }) {
   const searchParams = useSearchParams();
-
-  // Check if user was redirected because they need to log in
+  
   useEffect(() => {
     const needLogin = searchParams.get('needLogin');
     if (needLogin === 'true') {
       setIsAuthModalOpen(true);
     }
-  }, [searchParams]);
+  }, [searchParams, setIsAuthModalOpen]);
+  
+  return null;
+}
+
+export default function Home() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Suspense boundary for search params */}
+      <Suspense fallback={null}>
+        <LoginCheck setIsAuthModalOpen={setIsAuthModalOpen} />
+      </Suspense>
+      
       {/* Auth Modal */}
       <AuthModal 
         isOpen={isAuthModalOpen} 
