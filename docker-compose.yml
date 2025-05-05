@@ -16,6 +16,9 @@ services:
       - WEAVIATE_API_KEY=${WEAVIATE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - DEBUG=express:*,prisma:*,nestjs:*
+      # For CORS configuration
+      - CORS_ENABLED=true
+      - CORS_CREDENTIALS=true
     networks:
       - hr-network
     # Re-enable healthcheck now that we've fixed the route conflict

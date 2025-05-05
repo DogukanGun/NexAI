@@ -27,7 +27,9 @@ async function bootstrap() {
             'http://localhost:3000',
             'http://localhost:3001',
             'http://frontend:3001',
-            'http://127.0.0.1:3001'
+            'http://127.0.0.1:3001',
+            'https://hr.nexarb.com',
+            'http://hr.nexarb.com'
           ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       credentials: true,
@@ -46,6 +48,47 @@ async function bootstrap() {
         logger: ['log', 'error', 'warn', 'debug', 'verbose'], // Enable all log levels
       }
     );
+
+    // Add explicit CORS headers middleware for more robust handling
+    app.use((req: any, res: any, next: any) => {
+      // Allow specific origins or use wildcard
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001', 
+        'http://frontend:3001',
+        'https://hr.nexarb.com',
+        'http://hr.nexarb.com'
+      ];
+      
+      const origin = req.headers.origin;
+      if (origin && (isDevelopment || allowedOrigins.includes(origin))) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      }
+      
+      // Allow credentials
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      
+      // Allow specific headers
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+      );
+      
+      // Allow specific methods
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, OPTIONS'
+      );
+      
+      // Handle preflight requests
+      if (req.method === 'OPTIONS') {
+        res.statusCode = 204;
+        res.end();
+        return;
+      }
+      
+      next();
+    });
 
     // Set up Swagger documentation
     logger.log('Setting up Swagger documentation');
