@@ -26,7 +26,7 @@ export class ApiService {
   private token: string | null = null;
 
   private constructor() {
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://bachr.nexarb.com/api';
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://bachr.nexarb.com';
     
     this.api = axios.create({
       baseURL,
