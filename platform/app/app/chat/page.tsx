@@ -21,6 +21,7 @@ export default function ChatPage() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [debugInfo, setDebugInfo] = useState<string>("");
 
   // Suggested queries for quick access
   const suggestedQueries = [
@@ -35,17 +36,23 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Define backend URL with Docker container networking support
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 
-                      (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-                        ? "http://localhost:3000"
-                        : "http://backend:3000"); // Use service name in Docker
+  // Define backend URL with Docker container networking support - try multiple possibilities
+  const backendUrls = [
+    process.env.NEXT_PUBLIC_BACKEND_URL, 
+    "http://backend:3000",
+    "http://localhost:3000",
+    "http://host.docker.internal:3000",  // Special Docker DNS name for host machine
+  ].filter(Boolean); // Filter out undefined values
+  
+  // Use the first URL by default
+  const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
+  const BACKEND_URL = backendUrls[currentUrlIndex] || "http://backend:3000";
 
   const handleSend = async (e: React.FormEvent<HTMLFormElement> | null, suggestedQuery?: string) => {
     e?.preventDefault();
     
     const userMessage = suggestedQuery || input;
-    if (!userMessage.trim() || isLoading) return; // Prevent sending when already loading
+    if (!userMessage.trim() || isLoading) return;
     
     // Add user message
     const newUserMessage: Message = {
@@ -58,11 +65,15 @@ export default function ChatPage() {
     setMessages(prev => [...prev, newUserMessage]);
     setInput("");
     setIsLoading(true);
+    setDebugInfo(`Attempting to connect to: ${BACKEND_URL}`);
     
     try {
-      // Call the HR agent backend API with a timeout
+      // Try the request with the current backend URL
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // Shorter timeout for testing
+      
+      console.log(`Sending request to: ${BACKEND_URL}/hr-agent/ask`);
+      setDebugInfo(prev => prev + `\nSending request to: ${BACKEND_URL}/hr-agent/ask`);
       
       const response = await fetch(`${BACKEND_URL}/hr-agent/ask`, {
         method: 'POST',
@@ -80,6 +91,7 @@ export default function ChatPage() {
       }
       
       const data = await response.json();
+      setDebugInfo(prev => prev + `\nReceived response successfully!`);
       
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -91,10 +103,17 @@ export default function ChatPage() {
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error("Error fetching from HR agent:", error);
+      setDebugInfo(prev => prev + `\nError: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Try the next URL if available
+      if (currentUrlIndex < backendUrls.length - 1) {
+        setCurrentUrlIndex(currentUrlIndex + 1);
+        setDebugInfo(prev => prev + `\nTrying next URL: ${backendUrls[currentUrlIndex + 1]}`);
+        return;
+      }
       
       let errorMessage = "I'm sorry, I encountered a technical issue while retrieving that information. Please try again later.";
       
-      // Handle specific error cases
       if (error instanceof DOMException && error.name === 'AbortError') {
         errorMessage = "I'm sorry, the request took too long to process. Please try a more specific question or try again later.";
       }
@@ -112,6 +131,9 @@ export default function ChatPage() {
       setIsLoading(false);
     }
   };
+
+  // Add debug panel for development
+  const showDebugPanel = process.env.NODE_ENV === 'development' || true;
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -263,6 +285,12 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
+
+      {showDebugPanel && debugInfo && (
+        <div className="fixed bottom-0 right-0 bg-gray-800 text-xs text-white p-2 max-w-sm max-h-32 overflow-auto opacity-75 z-50">
+          <pre>{debugInfo}</pre>
+        </div>
+      )}
     </div>
   );
 } 

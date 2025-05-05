@@ -19,6 +19,16 @@ RUN apt-get update && apt-get install -y python3 make g++ && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/generated ./generated
-COPY .env .env
+COPY --from=builder /app/prisma ./prisma
+
+# Copy the environment variables
+COPY .env* ./
+
+# Set environment variables
+ENV NODE_ENV=production
+
+# Expose port
 EXPOSE 3000
-RUN npm run start:prod
+
+# Command to run the application
+CMD ["npm", "run", "start:prod"]
