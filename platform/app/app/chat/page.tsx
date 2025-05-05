@@ -35,11 +35,14 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Define backend URL - consider adding to .env in production
+  const BACKEND_URL = "http://localhost:3000"; // Backend is running on port 3000
+
   const handleSend = async (e: React.FormEvent<HTMLFormElement> | null, suggestedQuery?: string) => {
     e?.preventDefault();
     
     const userMessage = suggestedQuery || input;
-    if (!userMessage.trim()) return;
+    if (!userMessage.trim() || isLoading) return; // Prevent sending when already loading
     
     // Add user message
     const newUserMessage: Message = {
@@ -53,17 +56,58 @@ export default function ChatPage() {
     setInput("");
     setIsLoading(true);
     
-    // Simulate AI response (replace with actual API call)
-    setTimeout(() => {
+    try {
+      // Call the HR agent backend API with a timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
+      const response = await fetch(`${BACKEND_URL}/hr-agent/ask`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: userMessage }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: `Here's information regarding: "${userMessage}". In German employment law, this topic is regulated under specific guidelines. I'd be happy to elaborate further on specific aspects you're interested in.`,
+        content: data.answer || "Sorry, I couldn't find relevant information on that topic.",
         sender: "assistant",
         timestamp: new Date(),
       };
+      
       setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Error fetching from HR agent:", error);
+      
+      let errorMessage = "I'm sorry, I encountered a technical issue while retrieving that information. Please try again later.";
+      
+      // Handle specific error cases
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        errorMessage = "I'm sorry, the request took too long to process. Please try a more specific question or try again later.";
+      }
+      
+      // Show error message to user
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: errorMessage,
+        sender: "assistant",
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

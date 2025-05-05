@@ -21,4 +21,4 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/generated ./generated
 COPY .env .env
 EXPOSE 3000
-CMD ["node", "dist/main"]
+RUN npm run start:prod
