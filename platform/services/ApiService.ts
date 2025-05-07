@@ -35,6 +35,7 @@ export class ApiService {
         'Accept': 'application/json',
       },
       withCredentials: true,
+      timeout: 60000, // Increase timeout to 60 seconds
     });
 
     // Add request interceptor to add auth token
@@ -142,7 +143,10 @@ export class ApiService {
   // Verification endpoints
   async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await this.api.get(`/verification/verify?token=${token}`);
+      // Set a longer timeout specifically for verification endpoint
+      const response = await this.api.get(`/verification/verify?token=${token}`, {
+        timeout: 60000 // 60 seconds timeout for verification endpoint
+      });
       return { 
         success: true, 
         message: 'Email verification successful'

@@ -1,0 +1,46 @@
+/* Styles for HR agent HTML content */
+.hrAgentContent {
+  /* Reset inherited styles from chat interface */
+  color: inherit;
+  font-family: inherit;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Override agent HTML styles */
+.hrAgentContent h1,
+.hrAgentContent h2 {
+  color: white;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.hrAgentContent h1 {
+  font-size: 1.25rem;
+}
+
+.hrAgentContent h2 {
+  font-size: 1.125rem;
+}
+
+.hrAgentContent p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.hrAgentContent ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.hrAgentContent li {
+  margin: 0.25rem 0;
+}
+
+/* Override any background colors */
+.hrAgentContent * {
+  background-color: transparent !important;
+} 

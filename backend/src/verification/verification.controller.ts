@@ -20,7 +20,8 @@ export class VerificationController {
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
   async verifyEmail(
     @Query('token') token: string,
-    @Res() res: FastifyReply,
+    @Query('redirect') redirect?: string,
+    @Res({ passthrough: true }) res?: FastifyReply,
   ) {
     if (!token) {
       throw new BadRequestException('Verification token is required');
@@ -28,18 +29,33 @@ export class VerificationController {
 
     try {
       const result = await this.verificationService.verifyEmail(token);
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
       
-      // Redirect to the frontend verification success page
-      return res.status(HttpStatus.FOUND)
-        .header('Location', `${frontendUrl}/verify?success=true&email=${encodeURIComponent(result.email)}`)
-        .send();
+      // If redirect parameter is provided, perform a redirect
+      if (redirect === 'true' && res) {
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
+        return res.status(HttpStatus.FOUND)
+          .header('Location', `${frontendUrl}/verify?success=true&email=${encodeURIComponent(result.email)}`)
+          .send();
+      }
+      
+      // Otherwise return a JSON response
+      return {
+        success: true,
+        message: 'Email verification successful',
+        email: result.email,
+        userId: result.userId
+      };
     } catch (error) {
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
-      // Redirect to the frontend verification failure page
-      return res.status(HttpStatus.FOUND)
-        .header('Location', `${frontendUrl}/verify?success=false&error=${encodeURIComponent(error.message)}`)
-        .send();
+      // If redirect parameter is provided, perform a redirect
+      if (redirect === 'true' && res) {
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3001');
+        return res.status(HttpStatus.FOUND)
+          .header('Location', `${frontendUrl}/verify?success=false&error=${encodeURIComponent(error.message)}`)
+          .send();
+      }
+      
+      // Otherwise, throw the exception which will be caught by NestJS exception filters
+      throw error;
     }
   }
 

@@ -4,6 +4,13 @@ import { WeaviateSearchTool } from './weaviate.tool';
 import { initializeAgentExecutorWithOptions } from 'langchain/agents';
 import { ChatOpenAI } from '@langchain/openai';
 import { WeaviateService } from '../weaviate/weaviate.service';
+import OpenAI from "openai";
+import { z } from "zod";
+import { zodTextFormat } from "openai/helpers/zod";
+
+const HtmlOutput = z.object({
+  html: z.string(),
+})
 
 @Injectable()
 export class AgentService implements OnModuleInit {
@@ -92,5 +99,36 @@ export class AgentService implements OnModuleInit {
       this.logger.error(`Error executing agent: ${error instanceof Error ? error.message : String(error)}`);
       return `Sorry, I encountered an error while processing your question. Please try again with a different question.`;
     }
+  }
+
+  async executeHtmlAgent(answer: string): Promise<string> {
+    const openai = new OpenAI({
+      apiKey: this.configService.get<string>('OPENAI_API_KEY'),
+    });
+    const response = await openai.responses.parse({
+      model: 'gpt-4o',
+      input: [
+        {
+          role: 'system',
+          content: `You are a helpful assistant that formats text into HTML. User will provide 
+          you a text that reporesents an answer to a question. Your job is to format the text into HTML.
+          The HTML should be formatted in a way that is easy to read and understand but in same time, 
+          I do not want to lose any information and have same font everywhere`,
+        },
+        {
+          role: 'user',
+          content: answer,
+        },
+      ],
+      text: {
+        format: zodTextFormat(HtmlOutput, "html"),
+      },
+    });
+    if (response.output_parsed == null) {
+      return answer;
+    }
+    this.logger.log(`HTML response: ${response.output_parsed.html}`);
+    return response.output_parsed.html;
+
   }
 } 

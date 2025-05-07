@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface NavbarProps {
   onLaunchClick: () => void;
@@ -10,7 +10,7 @@ interface NavbarProps {
 
 export default function Navbar({ onLaunchClick }: NavbarProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     // Check for token on component mount and when token changes
@@ -68,10 +68,10 @@ export default function Navbar({ onLaunchClick }: NavbarProps) {
             ) : (
               <div className="flex items-center space-x-4">
                 <Link 
-                  href="/app/chat" 
+                  href={pathname === '/app/chat' ? '/app' : '/app/chat'}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  Chat
+                  { pathname === '/app/chat' ? 'Home' : 'Chat'}
                 </Link>
                 <button
                   onClick={handleLogout}

@@ -2,6 +2,13 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import AuthCheck from '../../components/AuthCheck';
+import styles from './chat.module.css';
+
+// Sanitize HTML by removing style tags
+const sanitizeHtml = (html: string): string => {
+  // Remove <style>...</style> tags
+  return html.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+};
 
 type Message = {
   id: string;
@@ -95,7 +102,7 @@ export default function ChatPage() {
     try {
       // Try the request with the current backend URL
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // Shorter timeout for testing
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // Increase timeout to 120 seconds
       
       console.log(`Sending request to: ${BACKEND_URL}/hr-agent/ask`);
       setDebugInfo(prev => prev + `\nSending request to: ${BACKEND_URL}/hr-agent/ask`);
@@ -231,9 +238,14 @@ export default function ChatPage() {
                       <span className="text-xs font-semibold text-gray-300">HR Legal Assistant</span>
                     </div>
                   )}
-                  <p className="text-white">
-                    {message.content}
-                  </p>
+                  {message.sender === "assistant" ? (
+                    <div 
+                      className={`text-white ${styles.hrAgentContent}`}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(message.content) }}
+                    />
+                  ) : (
+                    <p className="text-white">{message.content}</p>
+                  )}
                   <div className={`text-xs mt-2 ${message.sender === "user" ? "text-blue-200" : "text-gray-500"}`}>
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>

@@ -11,6 +11,7 @@ import { WeaviateModule } from './weaviate/weaviate.module';
 import { LangchainModule } from './langchain/langchain.module';
 import { EmailModule } from './email/email.module';
 import { VerificationModule } from './verification/verification.module';
+import { ScraperModule } from './scraper/scraper.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { VerificationModule } from './verification/verification.module';
     LangchainModule,
     EmailModule,
     VerificationModule,
+    ScraperModule,
   ],
   controllers: [AppController],
   providers: [AppService],

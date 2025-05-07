@@ -67,9 +67,22 @@ export class HrAgentController {
     try {
       this.logger.log(`Received HR query: ${queryDto.query}`);
       
+      const startTime = Date.now();
+      this.logger.log(`Starting agent execution at ${new Date().toISOString()}`);
+      
       const answer = await this.agentService.executeAgent(queryDto.query);
       
-      return { answer };
+      const endTime = Date.now();
+      this.logger.log(`Agent execution completed in ${endTime - startTime}ms`);
+      this.logger.log(`Answer length: ${answer.length} characters`);
+      this.logger.log(`Answer: ${answer}`);
+      
+      this.logger.log(`Preparing response to client`);
+      const response = { answer };
+      
+      this.logger.log(`Sending response to client`);
+      const htmlResponse = await this.agentService.executeHtmlAgent(answer);
+      return { answer: htmlResponse };
     } catch (error) {
       this.logger.error(`Error processing HR query: ${error.message}`, error.stack);
       throw new HttpException(
