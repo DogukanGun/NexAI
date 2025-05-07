@@ -37,17 +37,7 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Define backend URL with Docker container networking support - try multiple possibilities
-  const backendUrls = [
-    process.env.NEXT_PUBLIC_BACKEND_URL, 
-    "http://backend:3000",
-    "http://localhost:3000",
-    "http://host.docker.internal:3000",  // Special Docker DNS name for host machine
-  ].filter(Boolean); // Filter out undefined values
-  
-  // Use the first URL by default
-  const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
-  const BACKEND_URL = backendUrls[currentUrlIndex] || "http://backend:3000";
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [token, setToken] = useState<string | null>(null);
 
   // Get token from sessionStorage on component mount
@@ -141,13 +131,6 @@ export default function ChatPage() {
     } catch (error) {
       console.error("Error fetching from HR agent:", error);
       setDebugInfo(prev => prev + `\nError: ${error instanceof Error ? error.message : String(error)}`);
-      
-      // Try the next URL if available
-      if (currentUrlIndex < backendUrls.length - 1) {
-        setCurrentUrlIndex(currentUrlIndex + 1);
-        setDebugInfo(prev => prev + `\nTrying next URL: ${backendUrls[currentUrlIndex + 1]}`);
-        return;
-      }
       
       let errorMessage = "I'm sorry, I encountered a technical issue while retrieving that information. Please try again later.";
       
