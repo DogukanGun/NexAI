@@ -39,6 +39,7 @@ model User {
   lastName  String?
   roles     Role[]
   userType  UserType
+  isVerified Boolean @default(false)
   subscriptionType SubscriptionType @default(FREE)
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])

@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags, ApiBearerAuth
 import { IsNotEmpty, IsString } from 'class-validator';
 import { AgentService } from './agent.service';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { VerifiedUserGuard } from '../auth/guard/verified-user.guard';
 
 // Define a DTO for the request
 class QueryDto {
@@ -26,8 +27,8 @@ class AgentResponseDto {
 
 @ApiTags('HR Agent')
 @Controller('hr-agent')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@UseGuards(VerifiedUserGuard)
+@ApiBearerAuth('JWT-auth')
 export class HrAgentController {
   private readonly logger = new Logger(HrAgentController.name);
 
@@ -56,6 +57,7 @@ export class HrAgentController {
   })
   @ApiResponse({ status: 400, description: 'Query cannot be empty' })
   @ApiResponse({ status: 401, description: 'Unauthorized - Authentication required' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Account must be verified' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async askQuestion(@Body() queryDto: QueryDto): Promise<AgentResponseDto> {
     if (!queryDto.query || queryDto.query.trim() === '') {

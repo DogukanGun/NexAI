@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { AuthenticatedRequest } from '../auth/interface/authenticated-request.interface';
 import { Role } from 'generated/prisma/client';
 import { AuthService } from '../auth/auth.service';
+import { VerificationService } from '../verification/verification.service';
 
 // Define response DTO for Swagger
 class TokenResponseDto {
@@ -20,7 +21,8 @@ class TokenResponseDto {
 export class RegisterController {
     constructor(
         private userService: UserService,
-        private authService: AuthService
+        private authService: AuthService,
+        private verificationService: VerificationService
     ) { }
 
     @Post()
@@ -57,7 +59,22 @@ export class RegisterController {
                             }
                             else {
                                 return this.userService.register(registerDto).pipe(
-                                    mergeMap(user => this.authService.login(user))
+                                    mergeMap(user => {
+                                        // Send verification email after registration
+                                        this.verificationService.sendVerificationEmail(user.id, user.email)
+                                            .then(sent => {
+                                                if (sent) {
+                                                    console.log(`Verification email sent to ${user.email}`);
+                                                } else {
+                                                    console.error(`Failed to send verification email to ${user.email}`);
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error(`Error sending verification email: ${error.message}`);
+                                            });
+                                        
+                                        return this.authService.login(user);
+                                    })
                                 );
                             }
                         })
@@ -69,7 +86,7 @@ export class RegisterController {
 
     @Post('company')
     @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
+    @ApiBearerAuth('JWT-auth')
     @ApiOperation({ summary: 'Register a new company user (requires company admin)' })
     @ApiBody({
       type: CompanyUserRegisterDto,

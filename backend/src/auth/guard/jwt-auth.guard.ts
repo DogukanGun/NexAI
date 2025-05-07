@@ -12,7 +12,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // Add your custom authentication logic here
-    // for example, call super.logIn(request) to establish a session.
+    // Note: This guard doesn't check verification status - it only verifies the JWT token
     return super.canActivate(context);
   }
 

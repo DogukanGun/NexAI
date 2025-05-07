@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthenticatedRequest } from './interface/authenticated-request.interface';
 import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
+import { UserPrincipal } from './interface/user-principal.interface';
 
 // Define login DTO for Swagger documentation
 class LoginDto {
@@ -34,7 +35,7 @@ export class AuthController {
     },
   })
   login(@Req() req: AuthenticatedRequest, @Res() res: FastifyReply): Observable<FastifyReply> {
-    return this.authService.login(req.user)
+    return this.authService.login(req.user as UserPrincipal)
       .pipe(
         map(token => {
           res.header('Authorization', 'Bearer ' + token.access_token);

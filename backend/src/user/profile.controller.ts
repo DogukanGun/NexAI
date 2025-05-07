@@ -13,7 +13,7 @@ class UserProfileDto {
 
 @Controller({ path: '/profile' })
 @ApiTags('profile')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class ProfileController {
 
   @UseGuards(JwtAuthGuard)

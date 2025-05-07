@@ -6,6 +6,7 @@ import AnalyticsCard from './components/AnalyticsCard';
 import RecentActivityCard from './components/RecentActivityCard';
 import ApplicationCard from './components/ApplicationCard';
 import AuthCheck from '../components/AuthCheck';
+import JwtDecoder from '../components/JwtDecoder';
 
 export default function AppPage() {
   return (
@@ -23,6 +24,11 @@ export default function AppPage() {
           <p className="text-gray-400 text-lg">
             Your intelligent HR management platform
           </p>
+          
+          {/* JWT Decoder - shows verification status */}
+          <Suspense fallback={null}>
+            <JwtDecoder />
+          </Suspense>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

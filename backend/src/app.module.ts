@@ -9,6 +9,8 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { WeaviateModule } from './weaviate/weaviate.module';
 import { LangchainModule } from './langchain/langchain.module';
+import { EmailModule } from './email/email.module';
+import { VerificationModule } from './verification/verification.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { LangchainModule } from './langchain/langchain.module';
     PrismaModule,
     WeaviateModule,
     LangchainModule,
+    EmailModule,
+    VerificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

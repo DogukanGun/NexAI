@@ -138,4 +138,56 @@ export class ApiService {
   clearToken() {
     this.token = null;
   }
+
+  // Verification endpoints
+  async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await this.api.get(`/verification/verify?token=${token}`);
+      return { 
+        success: true, 
+        message: 'Email verification successful'
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { 
+          success: false, 
+          message: `Verification failed: ${error.message}`
+        };
+      }
+      return { 
+        success: false, 
+        message: 'Verification failed: Unknown error'
+      };
+    }
+  }
+
+  async resendVerificationEmail(userId: string, email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await this.api.post('/verification/resend', { userId, email });
+      return { 
+        success: true, 
+        message: 'Verification email sent successfully'
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { 
+          success: false, 
+          message: `Failed to resend verification email: ${error.message}`
+        };
+      }
+      return { 
+        success: false, 
+        message: 'Failed to resend verification email: Unknown error'
+      };
+    }
+  }
+
+  async checkVerificationStatus(userId: string): Promise<{ isVerified: boolean }> {
+    try {
+      const response = await this.api.get<{ userId: string; isVerified: boolean }>(`/verification/status/${userId}`);
+      return { isVerified: response.data.isVerified };
+    } catch (error) {
+      return { isVerified: false };
+    }
+  }
 }
