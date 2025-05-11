@@ -9,6 +9,8 @@ import AuthCheck from '../components/AuthCheck';
 import JwtDecoder from '../components/JwtDecoder';
 
 export default function AppPage() {
+
+  const env = process.env.NODE_ENV;
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Authentication check */}
@@ -26,9 +28,11 @@ export default function AppPage() {
           </p>
           
           {/* JWT Decoder - shows verification status */}
-          <Suspense fallback={null}>
-            <JwtDecoder />
-          </Suspense>
+          {env === 'development' && (
+            <Suspense fallback={null}>
+              <JwtDecoder />
+            </Suspense>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

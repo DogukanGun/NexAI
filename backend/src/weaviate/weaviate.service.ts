@@ -1,8 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// Use CommonJS import for weaviate-client
 const weaviate = require('weaviate-client').default;
-// Import the type separately
 import type { WeaviateClient } from 'weaviate-client';
 
 @Injectable()

@@ -10,10 +10,9 @@ export default function AuthCheck() {
   useEffect(() => {
     const checkAuth = () => {
       const token = sessionStorage.getItem('token');
-      const tokenCookie = document.cookie.split('; ').find(row => row.startsWith('token='));
       
       // If no token in sessionStorage or cookies, redirect
-      if (!token || !tokenCookie) {
+      if (!token) {
         router.push('/?needLogin=true');
       }
     };

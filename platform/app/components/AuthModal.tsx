@@ -113,7 +113,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-8 w-full max-w-md">
