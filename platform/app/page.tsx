@@ -1,12 +1,9 @@
 "use client"
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "./components/AuthModal";
-import { LawAI } from "./components/svgs/LawAI";
-import { DocumentAI } from "./components/svgs/DocumentAI";
-import { InterviewAI } from "./components/svgs/InterviewAI";
-import { FutureVisualization } from "./components/svgs/FutureVisualization";
 
 // Component that uses useSearchParams
 function LoginCheck({ setIsAuthModalOpen }: { setIsAuthModalOpen: (isOpen: boolean) => void }) {
@@ -25,155 +22,252 @@ function LoginCheck({ setIsAuthModalOpen }: { setIsAuthModalOpen: (isOpen: boole
 export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  const images = {
+    dashboard: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2015&q=80",
+    legal: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+    jobPosting: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+    interview: "https://images.unsplash.com/photo-1596524430615-b46475ddff6e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80",
+    companyDocs: "https://images.unsplash.com/photo-1568992687947-868a62a9f521?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Suspense boundary for search params */}
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
       <Suspense fallback={null}>
         <LoginCheck setIsAuthModalOpen={setIsAuthModalOpen} />
       </Suspense>
       
-      {/* Auth Modal */}
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
       />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-black">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,255,0.1),transparent_50%)]"></div>
+      <section className="relative min-h-screen flex items-center">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute w-[500px] h-[500px] bg-blue-500/30 rounded-full blur-3xl -top-48 -left-24 animate-pulse"></div>
+          <div className="absolute w-[400px] h-[400px] bg-purple-500/20 rounded-full blur-3xl bottom-0 right-0 animate-pulse delay-1000"></div>
         </div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center lg:text-left grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-block px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-6">
-                Next Generation HR Technology
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                <span className="text-blue-400 font-medium">AI-Powered HR Revolution</span>
               </div>
-              <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-400 to-blue-600">
-                The Future of HR is Here
+              
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-400 to-purple-400">
+                  Transform Your
+                </span>
+                <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  HR Management
+                </span>
               </h1>
-              <p className="text-xl text-gray-400 mb-8 max-w-2xl">
-                Experience the power of advanced AI in HR management. Transform your workplace with intelligent automation and deep insights.
+              
+              <p className="text-xl text-gray-400 leading-relaxed">
+                Harness the power of artificial intelligence to revolutionize your HR processes. 
+                From automated recruitment to employee engagement analytics, we're redefining 
+                the future of workplace management.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 text-lg font-semibold"
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 text-lg font-semibold transform hover:scale-105"
                 >
-                  Get Started
+                  Start Free Trial
                 </button>
                 <Link
-                  href="/#features"
-                  className="px-8 py-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 text-lg font-semibold"
+                  href="/#demo"
+                  className="px-8 py-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 text-lg font-semibold flex items-center justify-center group"
                 >
-                  Explore Features
+                  Watch Demo
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
                 </Link>
               </div>
-            </div>
-            <div className="relative">
-              <div className="w-full h-[400px] rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 p-4">
-                <div className="absolute -top-4 -left-4 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
-                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl"></div>
-                <InterviewAI />
+
+              <div className="flex items-center gap-8 pt-8">
+                <div className="flex -space-x-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="w-12 h-12 rounded-full border-2 border-black bg-gradient-to-br from-blue-400 to-purple-400"></div>
+                  ))}
+                </div>
+                <div className="text-sm text-gray-400">
+                  <span className="text-white font-semibold">500+</span> companies already trust us
+                </div>
               </div>
+            </div>
+
+            <div className="relative lg:h-[600px] rounded-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-sm rounded-2xl"></div>
+              <Image
+                src={images.dashboard}
+                alt="AI HR Dashboard"
+                fill
+                className="object-cover rounded-2xl transform hover:scale-105 transition-transform duration-500"
+                priority
+              />
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-black/50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-            Powered by Advanced AI
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+      <section id="features" className="py-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-purple-900/20 to-transparent"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+              Advanced AI-Powered Features
+            </h2>
+            <p className="mt-4 text-xl text-gray-400">
+              Revolutionizing HR with cutting-edge artificial intelligence
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
             {[
               {
-                title: "German Law Expert AI",
-                description: "Your 24/7 legal consultant with comprehensive knowledge of German employment law.",
-                icon: <LawAI />,
-                gradient: "from-blue-600 to-blue-400"
+                title: "Legal Document Analysis",
+                description: "Our AI directly analyzes and answers questions from legal documents, including labor laws and regulations, providing accurate and contextual responses based on the latest legal framework.",
+                image: images.legal,
+                features: [
+                  "Direct answers from legal documents",
+                  "Up-to-date labor law analysis",
+                  "Constitutional compliance checks",
+                  "Legal context understanding"
+                ]
               },
               {
-                title: "Smart Document Generator",
-                description: "Automated generation of legally-compliant agreements and letters tailored to your needs.",
-                icon: <DocumentAI />,
-                gradient: "from-purple-600 to-purple-400"
-              },
-              {
-                title: "Interview Intelligence",
-                description: "Real-time interview analysis using advanced emotion AI and behavioral recognition.",
-                icon: <InterviewAI />,
-                gradient: "from-indigo-600 to-indigo-400"
+                title: "Intelligent Job Posting Creator",
+                description: "AI-powered job posting generator that analyzes similar listings across industries to create optimized, market-aligned job descriptions while maintaining your company's unique requirements.",
+                image: images.jobPosting,
+                features: [
+                  "Market analysis of similar positions",
+                  "Industry-standard terminology",
+                  "Competitive requirements matching",
+                  "Custom company alignment"
+                ]
               }
             ].map((feature, index) => (
               <div 
-                key={index} 
-                className="group relative bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 hover:transform hover:-translate-y-1"
+                key={index}
+                className="group relative bg-gradient-to-br from-white/5 to-white/10 rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/10"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-2xl"></div>
-                <div className="relative">
-                  <div className="h-48 mb-6">{feature.icon}</div>
-                  <h3 className={`text-2xl font-semibold mb-3 bg-clip-text text-transparent bg-gradient-to-r ${feature.gradient}`}>
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-400">{feature.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+                  <Image
+                    src={feature.image}
+                    alt={feature.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
                 </div>
+                <h3 className="text-2xl font-semibold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-400 mb-4">{feature.description}</p>
+                <ul className="space-y-2">
+                  {feature.features.map((item, i) => (
+                    <li key={i} className="flex items-center text-gray-400">
+                      <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {[
+              {
+                title: "Company Knowledge Base AI",
+                description: "Upload your company documents and let our AI create a smart knowledge base. Ask questions, generate documents, and get insights based on your organization's unique data.",
+                image: images.companyDocs,
+                features: [
+                  "Document vectorization",
+                  "Natural language queries",
+                  "Custom document generation",
+                  "Company-specific insights"
+                ]
+              },
+              {
+                title: "Interview Emotion Analysis (Coming Soon)",
+                description: "Revolutionary AI technology that analyzes candidate emotions and behavioral patterns during interviews, providing deeper insights into potential fits for your organization.",
+                image: images.interview,
+                features: [
+                  "Real-time emotion detection",
+                  "Behavioral pattern analysis",
+                  "Candidate engagement metrics",
+                  "Objective evaluation assistance"
+                ],
+                comingSoon: true
+              }
+            ].map((feature, index) => (
+              <div 
+                key={index}
+                className="group relative bg-gradient-to-br from-white/5 to-white/10 rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/10"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                {feature.comingSoon && (
+                  <div className="relative z-10 inline-flex items-center mb-6 px-4 py-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full border border-blue-500/40">
+                    <span className="animate-pulse w-2 h-2 rounded-full bg-blue-400 mr-2"></span>
+                    <span className="text-sm font-medium text-blue-400">Coming Soon</span>
+                  </div>
+                )}
+                <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+                  <Image
+                    src={feature.image}
+                    alt={feature.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-400 mb-4">{feature.description}</p>
+                <ul className="space-y-2">
+                  {feature.features.map((item, i) => (
+                    <li key={i} className="flex items-center text-gray-400">
+                      <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Updated Interactive Demo Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Statistics Section */}
+      <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-black"></div>
-        <div className="max-w-7xl mx-auto relative">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-              Experience the Future
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Our AI-powered platform revolutionizes HR processes with real-time insights and intelligent automation.
-            </p>
-          </div>
-          
-          <div className="bg-black/40 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
-            <div className="aspect-[2/1] w-full mb-12">
-              <FutureVisualization />
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="p-6 bg-white/5 rounded-xl border border-white/10 transform hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 mb-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid md:grid-cols-4 gap-8 text-center">
+            {[
+              { number: "98%", label: "Accuracy Rate" },
+              { number: "2x", label: "Faster Hiring" },
+              { number: "500+", label: "Happy Clients" },
+              { number: "24/7", label: "AI Support" }
+            ].map((stat, index) => (
+              <div key={index} className="bg-white/5 rounded-2xl p-8 backdrop-blur-sm border border-white/10">
+                <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {stat.number}
                 </div>
-                <h3 className="text-xl font-semibold text-blue-400 mb-2">Real-time Analysis</h3>
-                <p className="text-gray-400">Advanced AI algorithms process and analyze data in real-time, providing instant insights for better decision-making.</p>
+                <div className="mt-2 text-gray-400">{stat.label}</div>
               </div>
-              <div className="p-6 bg-white/5 rounded-xl border border-white/10 transform hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 mb-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-purple-400 mb-2">Smart Automation</h3>
-                <p className="text-gray-400">Automated workflows that adapt to your organization&apos;s needs, streamlining HR processes efficiently.</p>
-              </div>
-              <div className="p-6 bg-white/5 rounded-xl border border-white/10 transform hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 mb-4 rounded-full bg-gradient-to-br from-indigo-500/20 to-blue-500/20 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-indigo-400 mb-2">Predictive Insights</h3>
-                <p className="text-gray-400">AI-driven predictions and recommendations for proactive HR management and strategic planning.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -182,14 +276,18 @@ export default function Home() {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-transparent"></div>
         <div className="max-w-4xl mx-auto text-center relative">
-          <h2 className="text-4xl font-bold mb-6">Ready to Transform Your HR?</h2>
-          <p className="text-xl mb-8 text-gray-400">Join the future of HR management with our AI-powered platform.</p>
-          <Link
-            href="/#features"
-            className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:scale-105 transition-all duration-300 text-lg font-semibold shadow-lg shadow-blue-500/25"
+          <h2 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-400">
+            Ready to Transform Your HR?
+          </h2>
+          <p className="text-xl mb-8 text-gray-400">
+            Join hundreds of companies already using our AI-powered HR platform
+          </p>
+          <button
+            onClick={() => setIsAuthModalOpen(true)}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 text-lg font-semibold transform hover:scale-105"
           >
             Get Started Now
-          </Link>
+          </button>
         </div>
       </section>
     </div>
