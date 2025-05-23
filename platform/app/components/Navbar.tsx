@@ -16,7 +16,7 @@ export default function Navbar({ onLaunchClick }: NavbarProps) {
     // Check for token on component mount and when token changes
     const checkAuth = () => {
       const token = sessionStorage.getItem('token');
-      setIsAuthenticated(!!token);
+      setIsAuthenticated(token !== null);
     };
     
     checkAuth();
